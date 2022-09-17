@@ -2,9 +2,13 @@ package com.Rbs.packages;
 
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 
@@ -21,10 +25,10 @@ public class Package {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
-    @Column(name = "price", nullable = false)
-    private Integer price;
-    @Column(name = "description", nullable = false)
-    private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    PackageType type;
     @Column(name = "customer_id", nullable = false)
     private UUID customerID;
     @Column(name = "services_left", nullable = false)
@@ -32,12 +36,24 @@ public class Package {
     @Column(name = "creation_date", nullable = false)
     private LocalDate creationDate;
 
-    public Package(Integer price, String description, UUID customerID, Integer servicesLeft, LocalDate creationDate){
-        this.price = price;
-        this.description = description;
+    public Package(PackageType type, UUID customerID, Integer servicesLeft, LocalDate creationDate){
+        this.type = type;
         this.customerID = customerID;
         this.servicesLeft = servicesLeft;
         this.creationDate = creationDate;
+    }
+
+    public Integer usePackage(){
+        if(this.servicesLeft >= 1 && !isExpired()){
+            return --this.servicesLeft;
+        }
+        return -1;
+    }
+    private boolean isExpired(){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate today = LocalDate.of(now.getYear(),now.getMonth(),now.getDayOfMonth());
+        return !today.minusYears(1).isBefore(this.creationDate);
     }
 
 }

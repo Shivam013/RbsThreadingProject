@@ -23,11 +23,12 @@ public class CustomerController {
     }
 
     @PostMapping()
-    @RequestMapping("/{email}")
+    @RequestMapping("/create/{email}")
     public void registerNewCustomer(@PathVariable("email") String email) throws Exception {
         Customer customer = new Customer("STA",
                 email,
-                LocalDate.of(2004, Month.JANUARY, 16));
+                LocalDate.of(2004, Month.JANUARY, 16),
+                "14084314238");
         customerService.addNewCustomer(customer);
     }
 

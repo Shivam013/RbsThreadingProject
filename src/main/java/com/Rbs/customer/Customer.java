@@ -28,10 +28,14 @@ public class Customer {
     @Column(name = "dob", nullable = false)
     private LocalDate dob;
 
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
 
-    public Customer(String name, String email, LocalDate dob) {
+
+    public Customer(String name, String email, LocalDate dob, String phoneNumber) {
         this.name = name;
         this.email = email;
         this.dob = dob;
+        this.phoneNumber = phoneNumber;
     }
 }
