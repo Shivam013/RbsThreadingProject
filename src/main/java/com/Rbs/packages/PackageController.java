@@ -5,43 +5,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(path = "api/v1/customer/{email}/package")
+@RequestMapping(path = "api/v1/package-details")
 public class PackageController {
-    private final PackageService packageService;
-
+    private PackageRepository packageRepository;
     @Autowired
-    public PackageController(PackageService packageService) {
-        this.packageService = packageService;
+    public PackageController(PackageRepository packageRepository) {
+        this.packageRepository = packageRepository;
     }
 
-    @PostMapping()
-    @RequestMapping("/create-package")
-    public ResponseEntity<String> registerNewPackage(@PathVariable("email") String email) throws Exception {
-        packageService.addNewPackage(email);
-        return ResponseEntity.status(HttpStatus.CREATED).body("New Package Created");
+   @GetMapping
+   @RequestMapping(path = "/all")
+    public String getPackageDescs(){
+        PackageMap pm= packageRepository.getPackagesDetailed();
+        return pm.toString();
     }
-
-    @PutMapping
-    @RequestMapping("/use/{package-uuid}")
-    public ResponseEntity<String> useOldPackage(@PathVariable("package-uuid") UUID id) throws Exception {
-        int i = packageService.useOldPackage(id);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Package Used! You have "+i+" services left.");
-    }
-
-    @GetMapping
-    public List<Package> getPackageForEmail(@PathVariable("email") String email)throws Exception {
-        return packageService.getPackageForEmail(email);
-    }
-
-    @DeleteMapping
-    @RequestMapping("/delete/{package-uuid}")
-    public ResponseEntity<String> deleteOldPackage(@PathVariable("package-uuid") UUID id) throws Exception {
-        packageService.deleteOldPackage(id);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Package Deleted");
-    }
-
 }

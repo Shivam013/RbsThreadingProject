@@ -1,59 +1,59 @@
 package com.Rbs.packages;
 
-import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
-
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "package")
+@NamedNativeQueries(value = {
+        @NamedNativeQuery(
+                name = "Package.getPackagesDetailed",
+                query = "select p.id as id, s.description as service_desc,s.price as service_price,p.num_paid_service as num_paid_services, " +
+                        "p.num_free_service as num_free_services, p.package_expiration_months as expiration_months, " +
+                        "p.package_status as package_status from package p left join service s on p.service_id = s.id ",
+                resultSetMapping = "packageMap"
+        )
+})
+@SqlResultSetMappings(value = {
+        @SqlResultSetMapping(name = "packageMap",
+        classes = {
+                @ConstructorResult(targetClass = PackageMap.class,columns = {
+                        @ColumnResult(name = "id", type = Integer.class),
+                        @ColumnResult(name = "service_desc", type = String.class),
+                        @ColumnResult(name = "service_price", type = Integer.class),
+                        @ColumnResult(name = "num_paid_services", type = Integer.class),
+                        @ColumnResult(name = "num_free_services", type = Integer.class),
+                        @ColumnResult(name = "expiration_months", type = Integer.class),
+                        @ColumnResult(name = "package_status", type = Boolean.class)
+                })
+        })
+})
 public class Package {
     @Id
-    @Column(updatable = false, nullable = false, columnDefinition = "uuid DEFAULT uuid_generate_v4()")
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
-    PackageType type;
-    @Column(name = "customer_id", nullable = false)
-    private UUID customerID;
-    @Column(name = "services_left", nullable = false)
-    private Integer servicesLeft;
-    @Column(name = "creation_date", nullable = false)
-    private LocalDate creationDate;
+    @Column(name = "service_id", nullable = false)
+    private Integer serviceId;
 
-    public Package(PackageType type, UUID customerID, Integer servicesLeft, LocalDate creationDate){
-        this.type = type;
-        this.customerID = customerID;
-        this.servicesLeft = servicesLeft;
-        this.creationDate = creationDate;
-    }
+    @Column(name = "package_status", nullable = false)
+    private Boolean packageStatus;
 
-    public Integer usePackage(){
-        if(this.servicesLeft >= 1 && !isExpired()){
-            return --this.servicesLeft;
-        }
-        return -1;
-    }
-    private boolean isExpired(){
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-        LocalDateTime now = LocalDateTime.now();
-        LocalDate today = LocalDate.of(now.getYear(),now.getMonth(),now.getDayOfMonth());
-        return !today.minusYears(1).isBefore(this.creationDate);
-    }
+    @Column(name = "num_paid_service", nullable = false)
+    private Integer numPaidService;
 
+    @Column(name = "num_free_service", nullable = false)
+    private Integer numFreeService;
+
+    @Column(name = "package_expiration_months", nullable = false)
+    private Integer packageExpirationMonths;
 }

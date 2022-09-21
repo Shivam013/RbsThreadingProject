@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -25,10 +27,11 @@ public class CustomerController {
     @PostMapping()
     @RequestMapping("/create/{email}")
     public void registerNewCustomer(@PathVariable("email") String email) throws Exception {
-        Customer customer = new Customer("STA",
-                email,
-                LocalDate.of(2004, Month.JANUARY, 16),
-                "14084314238");
+        LocalDate ld = LocalDate.now();
+        LocalDateTime d = LocalDateTime.now();
+        Customer customer = new Customer(
+            "Shivam","Amin",16,12,email,"14084314238",true,ld,"",d
+        );
         customerService.addNewCustomer(customer);
     }
 
